@@ -1,0 +1,102 @@
+[
+    {
+        "question": "HTML代表的是？",
+        "options": [
+            {"key": "A", "text": "Hyperlink Text Markup Language"},
+            {"key": "B", "text": "Hyper Transfer Text Protocol"},
+            {"key": "C", "text": "Hyper Text Markup Language"},
+            {"key": "D", "text": "High Transfer Text Protocol"}
+        ],
+        "answer": "C"
+    },
+    {
+        "question": "HTML中，哪個標籤用來定義頁面的主標題？",
+        "options": [
+            {"key": "A", "text": "<title>"},
+            {"key": "B", "text": "<h1>"},
+            {"key": "C", "text": "<heading>"},
+            {"key": "D", "text": "<head>"}
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "下列哪個元素用於創建一個無序列表？",
+        "options": [
+            {"key": "A", "text": "<ol>"},
+            {"key": "B", "text": "<dl>"},
+            {"key": "C", "text": "<ul>"},
+            {"key": "D", "text": "<list>"}
+        ],
+        "answer": "C"
+    },
+    {
+        "question": "哪個屬性用於在超連結中打開新的瀏覽器窗口？",
+        "options": [
+            {"key": "A", "text": "target"},
+            {"key": "B", "text": "new"},
+            {"key": "C", "text": "window"},
+            {"key": "D", "text": "open"}
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "在HTML中，哪個元素用於插入圖片？",
+        "options": [
+            {"key": "A", "text": "<img>"},
+            {"key": "B", "text": "<picture>"},
+            {"key": "C", "text": "<image>"},
+            {"key": "D", "text": "<figure>"}
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "下列哪個標籤用於定義表格中的一行？",
+        "options": [
+            {"key": "A", "text": "<td>"},
+            {"key": "B", "text": "<tr>"},
+            {"key": "C", "text": "<table-row>"},
+            {"key": "D", "text": "<th>"}
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "哪個HTML屬性用於定義超連結的URL？",
+        "options": [
+            {"key": "A", "text": "url"},
+            {"key": "B", "text": "src"},
+            {"key": "C", "text": "link"},
+            {"key": "D", "text": "href"}
+        ],
+        "answer": "D"
+    },
+    {
+        "question": "HTML中，哪個元素用於定義段落？",
+        "options": [
+            {"key": "A", "text": "<para>"},
+            {"key": "B", "text": "<p>"},
+            {"key": "C", "text": "<pg>"},
+            {"key": "D", "text": "<paragraph>"}
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "哪個HTML標籤用於定義輸入字段，使用戶可以輸入文本？",
+        "options": [
+            {"key": "A", "text": "<textinput>"},
+            {"key": "B", "text": "<input>"},
+            {"key": "C", "text": "<textbox>"},
+            {"key": "D", "text": "<textfield>"}
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "哪個屬性用於在圖像上添加替代文本，提供圖像的描述？",
+        "options": [
+            {"key": "A", "text": "alt"},
+            {"key": "B", "text": "description"},
+            {"key": "C", "text": "caption"},
+            {"key": "D", "text": "title"}
+        ],
+        "answer": "A"
+    }
+]

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Quiz Carousel</title>
+    <!-- Link Vue 3.0 and Bootstrap 5 via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.13/dist/vue.global.prod.js"></script>
+    <!-- Link Axios via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="./assets/style.css">
+</head>
+
+<body>
+    <div id="app" class="container mt-5">
+        <div id="carouselExampleIndicators" class="carousel carousel-dark slide" data-bs-ride="false">
+            <!-- Carousel inner content -->
+            <div class="carousel-inner">
+                <div v-for="(question, index) in questions" :key="index"
+                    :class="{ 'carousel-item': true, 'active': index === currentIndex }">
+                    <quiz-question :question="question" :current-index="index" 
+                    @set-user-answer="setUserAnswer"></quiz-question>
+                </div>
+            </div>
+            <!-- Carousel controls -->    
+
+            <button v-if="currentIndex > 0" class="carousel-control-prev" 
+                type="button" 
+                data-bs-target="#carouselExampleIndicators"
+                data-bs-slide="prev" @click="prevQuestion">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button v-if="currentIndex < questions.length - 1" class="carousel-control-next" 
+                type="button"
+                data-bs-target="#carouselExampleIndicators" 
+                data-bs-slide="next" @click="nextQuestion">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        <div class="mt-3">
+            <button class="btn btn-primary" @click="submitAnswers">提交答案</button>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal" tabindex="-1" id="quizSummaryModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">答題狀況</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>共 {{ questions.length }} 題</p>
+                        <p>已做答 {{ userAnswers.filter(answer => answer !== null).length }} 題</p>
+                        <p>還有 {{ questions.length - userAnswers.filter(answer => answer !== null).length }} 題未完成</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 分數 Modal -->
+        <div class="modal" tabindex="-1" id="scoreModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">分數</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>你的分數是: {{ score }} 分</p>
+                        <p>評語: {{ rating }} {{ emoji }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                        <button type="button" class="btn btn-primary" @click="showAnswersModal">查看答案</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 答案詳細 Modal -->
+        <div class="modal fade" id="answersModal" tabindex="-1" aria-labelledby="answersModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="answersModalLabel">答案詳細</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="overflow-y: auto; max-height: 80vh;">
+                        <div class="list-group">
+                            <div v-for="(question, index) in questions" :key="index" class="list-group-item">
+                                <div>
+                                    <strong>題目 {{ index + 1 }}:</strong> {{ question.question }}
+                                </div>
+                                <div class="d-flex justify-content-around">
+                                    <div><strong>正確答案:</strong> {{ question.answer }}</div>
+                                    <div><strong>使用者答案:</strong> {{ userAnswers[index] }} <span v-if="question.answer === userAnswers[index]">✅</span> <span v-else>❌</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    questions: [], // 你的問題數據
+                    currentIndex: 0,
+                    userAnswers: [], // 存儲使用者的答案
+                    score: 0, // 初始化分數為0
+                    rating: '', // 初始值為空字串
+                    emoji: '',   // 初始值為空字串
+                    scoreRatings: [
+                        { range: '0-59', comment: '你需要更努力！', emoji: '😟' },
+                        { range: '60-69', comment: '有進步的空間！', emoji: '😐' },
+                        { range: '70-79', comment: '不錯，但還可以更好！', emoji: '😊' },
+                        { range: '80-89', comment: '很棒的表現！', emoji: '👍' },
+                        { range: '90-99', comment: '非常出色！', emoji: '🌟' },
+                        { range: '100', comment: '完美的分數！', emoji: '🎉' }
+                    ]
+                };
+            },
+            methods: {
+                prevQuestion() {
+                    if (this.currentIndex > 0) {
+                        this.currentIndex--;
+                    }
+                },
+                nextQuestion() {
+                    if (this.currentIndex < this.questions.length - 1) {
+                        this.currentIndex++;
+                    }
+                },
+                setUserAnswer(answer) {
+                    // 將使用者的答案存入userAnswers陣列中，索引對應到題目的index
+                    this.userAnswers[this.currentIndex] = answer;
+                    //console.log("setUserAnswer(answer):", answer, this.userAnswers);                    
+                },
+                submitAnswers() {
+                    // 在這裡處理提交答案的邏輯，this.userAnswers 包含了使用者的答案
+                    const answeredQuestions = this.userAnswers.filter(answer => answer !== null).length;
+                    const unansweredQuestions = this.questions.length - answeredQuestions;
+                    console.log("answer Status:",answeredQuestions, unansweredQuestions);
+                    if (answeredQuestions !== this.questions.length) 
+                    {
+                        const modal = new bootstrap.Modal(document.getElementById('quizSummaryModal'));
+                        modal.show();
+                    } 
+                    else 
+                    {
+                        // 如果所有問題都已答完，計算分數
+                        const correctAnswers = this.questions.filter((question, index) => {
+                            return question.answer === this.userAnswers[index];
+                        }).length;
+
+                        // 計算分數
+                        const score = (correctAnswers / this.questions.length) * 100;
+
+                        // 根據分數找到相對應的評語和 Emoji
+                        let rating = '';
+                        let emoji = '';
+                        for (const { range, comment, emoji: e } of this.scoreRatings) {
+                            const [min, max] = range.split('-');
+                            if (max) {
+                                if (score >= parseInt(min, 10) && score <= parseInt(max, 10)) {
+                                    rating = comment;
+                                    emoji = e;
+                                    break;
+                                }
+                            } else {
+                                if (score === 100) {
+                                    rating = comment;
+                                    emoji = e;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // 顯示分數的 Modal
+                        const scoreModal = new bootstrap.Modal(document.getElementById('scoreModal'));
+                        this.score = score; // 將分數存入 Vue data 中的 score 變數
+                        this.rating = rating;
+                        this.emoji = emoji;
+                        scoreModal.show();
+                    }
+                },
+                showAnswersModal() {
+                    const answersModal = new bootstrap.Modal(document.getElementById('answersModal'));
+                    answersModal.show();
+                }
+            },
+            mounted() {
+                // Fetch data using Axios when the component is mounted
+                axios.get('quiz.json')
+                    .then(response => {
+                        this.questions = response.data;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching quiz data:', error);
+                    });
+            }
+        });
+
+        app.component('quiz-question', {
+            props: {
+                question: Object,
+                currentIndex: Number // 接收currentIndex作為props
+            },
+            template: `
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ currentIndex + 1 }}. {{ question.question }}</h5>
+                        <div v-for="(option, optionIndex) in question.options" :key="optionIndex"
+                            class="form-check">
+                            <input class="form-check-input" type="radio"
+                                :id="'option-' + currentIndex + '-' + option.key"
+                                :name="'question-' + currentIndex" :value="option.key"
+                                v-model="userSelectedAnswer" @change="setUserAnswer(option.key)">
+                            <label class="form-check-label"
+                                :for="'option-' + currentIndex + '-' + option.key">
+                                {{ option.key }}. {{ option.text }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            `,
+            data() {
+                return {
+                    userSelectedAnswer: null
+                };
+            },
+            methods: {
+                setUserAnswer(answer) {
+                    // 將使用者的答案存入父組件的方法
+                    console.log("answer:", answer);
+                    this.$emit('setUserAnswer', answer);
+                }
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+
+</html>

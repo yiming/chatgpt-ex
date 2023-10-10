@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Concentric Circles SVG Generator</title>
+</head>
+<body>
+  <h1>Concentric Circles SVG Generator</h1>
+  <form>
+    <label for="svgWidth">SVG Width:</label>
+    <input type="number" id="svgWidth" value="400">
+    <br>
+    <label for="svgHeight">SVG Height:</label>
+    <input type="number" id="svgHeight" value="400">
+    <br>
+    <label for="startColor">Start Color:</label>
+    <input type="color" id="startColor" value="#FF0000">
+    <br>
+    <label for="stopColor">Stop Color:</label>
+    <input type="color" id="stopColor" value="#00FF00">
+    <br>
+    <label for="startOpacity">Start Opacity:</label>
+    <input type="range" id="startOpacity" min="0.1" max="1" step="0.1" value="0.8">
+    <span id="startOpacityValue">0.8</span>
+    <br>
+    <label for="stopOpacity">Stop Opacity:</label>
+    <input type="range" id="stopOpacity" min="0.1" max="1" step="0.1" value="0.1">
+    <span id="stopOpacityValue">0.1</span>
+    <br>
+    <label for="levels">Levels:</label>
+    <input type="number" id="levels" value="9">
+    <br>
+  </form>
+
+  <div id="svgContainer"></div>
+
+  <script>
+    // Function to generate SVG code for concentric circles
+    function generateConcentricCirclesSVG(svgWidth, svgHeight, startColor, stopColor, startOpacity, stopOpacity, levels) {
+      // Red to Green Gradient
+      const gradientId = "grad";
+      const gradientSVG = `
+        <defs>
+          <radialGradient id="${gradientId}" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+            <stop offset="0%" stop-color="${startColor}" stop-opacity="${startOpacity}" />
+            <stop offset="100%" stop-color="${stopColor}" stop-opacity="${stopOpacity}" />
+          </radialGradient>
+        </defs>
+      `;
+
+      // Circles
+      let circlesSVG = "";
+      let opacity = startOpacity;
+      let radius = 10;
+      for (let i = 1; i <= levels; i++) {
+        circlesSVG += `
+          <circle cx="${svgWidth / 2}" cy="${svgHeight / 2}" r="${radius}" fill="url(#${gradientId})" opacity="${opacity}" />
+        `;
+        const opacityDiff = (startOpacity - stopOpacity) / (levels - 1);
+        opacity -= opacityDiff;
+        radius += 15;
+      }
+
+      // Complete SVG
+      const svgCode = `
+        <svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">
+          ${gradientSVG}
+          ${circlesSVG}
+        </svg>
+      `;
+
+      return svgCode;
+    }
+
+    function updateSVG() {
+      const svgWidth = parseInt(document.getElementById("svgWidth").value) || 400;
+      const svgHeight = parseInt(document.getElementById("svgHeight").value) || 400;
+      const startColor = document.getElementById("startColor").value || "#FF0000";
+      const stopColor = document.getElementById("stopColor").value || "#00FF00";
+      const startOpacity = parseFloat(document.getElementById("startOpacity").value) || 0.8;
+      const stopOpacity = parseFloat(document.getElementById("stopOpacity").value) || 0.1;
+      const levels = parseInt(document.getElementById("levels").value) || 9;
+
+      // Call the function to get the SVG code
+      const svgCode = generateConcentricCirclesSVG(svgWidth, svgHeight, startColor, stopColor, startOpacity, stopOpacity, levels);
+
+      // Render the SVG code into the 'svgContainer' div
+      const svgContainer = document.getElementById("svgContainer");
+      svgContainer.innerHTML = svgCode;
+
+      // Update the displayed opacity values
+      document.getElementById("startOpacityValue").textContent = startOpacity;
+      document.getElementById("stopOpacityValue").textContent = stopOpacity;
+    }
+
+    // Add event listeners to update SVG whenever form inputs change
+    const formInputs = document.querySelectorAll("form input");
+    formInputs.forEach(input => {
+      input.addEventListener("input", updateSVG);
+    });
+
+    // Generate SVG with default values on page load
+    updateSVG();
+  </script>
+</body>
+</html>

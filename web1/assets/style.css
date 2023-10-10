@@ -1,0 +1,22 @@
+body{
+    padding-top:4.5rem;
+}
+.navbar{
+    background-color: #1e3b2d !important;
+}
+.carousel-control-prev{
+    left:-15%;
+}
+.carousel-control-next{
+    right:-15%;
+}
+.modal-dialog.modal-dialog-scrollable{
+    overflow-y: initial;
+}
+.modal-dialog.modal-dialog-scrollable .modal-body{
+    overflow-y: auto;
+}
+body.index .carousel-item{
+    height: 600px;
+    border:1px solid #999;
+}
